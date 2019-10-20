@@ -28,7 +28,7 @@ palazzetti:
 
 ## Parameters
 | name       | type      | mandatory | description |
-|:-----------|:----------|:----------------|:------------|
+|:-----------|:----------|:----------|:------------|
 | `ip`       | str       | yes       | local ip of your cbox |
 
 
@@ -83,12 +83,13 @@ You can set some parameters through the service `palazzetti.set_parms`
 
 ## Data Parameters
 Here all parameters that can be changed
-| name       | type      | possible values | description |
-|:-----------|:----------|:----------------|:------------|
-| `SETP`     | int       |                 | temperature target |
-| `PWR`      | int       |  1 to 5         | fire power |
-| `RFAN`     | int & str |  off / 1 to 5 / auto / high | level of room fan |
-| `STATUS`   | str       |  on / off       | start or stop the stove |
+
+| name       | type      | possible values             | description 			 |
+|:-----------|:----------|:----------------------------|:------------------------|
+| `SETP`     | int       |                             | temperature target 	 |
+| `PWR`      | int       |  1 to 5                     | fire power 			 |
+| `RFAN`     | int & str |  off / 1 to 5 / auto / high | level of room fan 		 |
+| `STATUS`   | str       |  on / off                   | start or stop the stove |
 
 ## Other
 ### Note
@@ -96,11 +97,10 @@ This component is tested only on Stove `NINA 6kW` not ductable. Don't hesitate t
 I know some difference for other stove that have the option ductable
 
 ### Coming soon
- [ ] fix for ductable stove
- [ ] named vars for PWR / RFAN / SETP
- [ ] link with `climate` entity
- [ ] may be an updater for check new release of component
-
+- [ ] fix for ductable stove
+- [ ] named vars for PWR / RFAN / SETP
+- [ ] link with `climate` entity
+- [ ] may be an updater for check new release of component
 
 #### DEV - enable log
 Enable home-assistant logger in your `configuration.yaml`
