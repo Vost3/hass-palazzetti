@@ -254,7 +254,7 @@ class Palazzetti(object):
     def setSEPT(self, value):
         """Set target temperature"""
         
-        if value == None or type(value) is not int:
+        if value == None or type(value) != int:
             return
                     
         self.op = 'SET SETP'
@@ -274,7 +274,7 @@ class Palazzetti(object):
     def setPOWR(self, value):
         """Set power of fire"""
         
-        if value == None or type(value) is not int:
+        if value == None or type(value) != int:
             return
                     
         self.op = 'SET POWR'
@@ -297,7 +297,7 @@ class Palazzetti(object):
             return
 
         # must be str or int
-        if type(value) is not str and type(value) is not int:
+        if type(value) != str and type(value) != int:
             return
         
         # translate if string
@@ -322,24 +322,22 @@ class Palazzetti(object):
         # change state        
         self.hass.states.async_set('palazzetti.F2L', self.codeFanNina.get(self.responseJson['F2L'], self.responseJson['F2L']))
 
-    def setStatus(self, value):
+    def setStatus(self, value):        
         """start or stop stove"""        
-        if value == None or type(value) is not str:
-            return
-        
-        # only ON of OFF value allowed
-        if value != 'ON' or value != 'OFF':
+        if value == None or type(value) != str :
             return
 
+        # only ON of OFF value allowed
+        if value != 'on' and value != 'off':
+            return
+        
         self.op = 'CMD'
 
         # params for GET
         params = (
             ('cmd', self.op + ' ' + str(value)),
         )
-
-        _LOGGER.debug(params['cmd'])
-        return
+                
         # request the stove        
         if self.requestStove(params) == False:            
             return
