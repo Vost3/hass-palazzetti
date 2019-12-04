@@ -26,8 +26,8 @@ CONFIG_SCHEMA = voluptuous.Schema({
     })
 }, extra=voluptuous.ALLOW_EXTRA)
 
-@asyncio.coroutine
-def async_setup(hass, config):
+
+async def async_setup(hass, config):
     _LOGGER.debug("Init of palazzetti component")
 
     hass.data[DOMAIN] = Palazzetti(hass, config)
@@ -233,7 +233,7 @@ class Palazzetti(object):
         """Change states following result of request"""
         if self.op == 'GET ALLS':       
             self.hass.states.async_set('palazzetti.STATUS', self.codeStatus.get(self.responseJson['STATUS'], self.responseJson['STATUS']))    
-            self.hass.states.async_set('palazzetti.F2L', self.codeFanNina.get(self.responseJson['F2L'], self.responseJson['F2L']))
+            self.hass.states.async_set('palazzetti.F2L', int(self.responseJson['F2L']))
             self.hass.states.async_set('palazzetti.PWR', self.responseJson['PWR'])
             self.hass.states.async_set('palazzetti.SETP', self.responseJson['SETP'])
     
@@ -273,7 +273,7 @@ class Palazzetti(object):
 
     def setPOWR(self, value):
         """Set power of fire"""
-        
+        return
         if value == None or type(value) != int:
             return
                     
@@ -295,18 +295,10 @@ class Palazzetti(object):
         """Set fan level"""            
         if value == None:
             return
-
+                
         # must be str or int
         if type(value) != str and type(value) != int:
             return
-        
-        # translate if string
-        if type(value) is str:
-            # is not present in fan dict
-            if value not in self.codeFanNinaReversed :                
-                return            
-            # get the value in reversed dict
-            value = self.codeFanNinaReversed.get(value)
                 
         self.op = 'SET RFAN'
 
@@ -320,7 +312,7 @@ class Palazzetti(object):
             return
         
         # change state        
-        self.hass.states.async_set('palazzetti.F2L', self.codeFanNina.get(self.responseJson['F2L'], self.responseJson['F2L']))
+        self.hass.states.async_set('palazzetti.F2L', self.responseJson['F2L'])
 
     def setStatus(self, value):        
         """start or stop stove"""        
@@ -345,5 +337,6 @@ class Palazzetti(object):
         # change state        
         self.hass.states.async_set('palazzetti.STATUS', self.codeStatus.get(self.responseJson['STATUS'], self.responseJson['STATUS']))        
                 
-            
+    def get_datas(self):
+        return self.responseJson
             
