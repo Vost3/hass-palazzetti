@@ -276,17 +276,17 @@ class Palazzetti(object):
         if value == None or type(value) != int:
             return
 
-        # avoid multiple request
-        if op == self.last_op and str(params) == self.last_params :
-            _LOGGER.debug('retry for op :' +op+' avoided')
-            return
-
         op = 'SET SETP'
 
         # params for GET
         params = (
             ('cmd', op + ' ' + str(value)),
         )
+
+        # avoid multiple request
+        if op == self.last_op and str(params) == self.last_params :
+            _LOGGER.debug('retry for op :' +op+' avoided')
+            return
 
         # request the stove
         if self.request_stove(op, params) == False:
@@ -300,17 +300,17 @@ class Palazzetti(object):
         if value is None :
             return
 		
-		# avoid multiple request
-        if op == self.last_op and str(params) == self.last_params :
-            _LOGGER.debug('retry for op :' +op+' avoided')
-            return
-
         op = 'SET POWR'
 
         # params for GET
         params = (
             ('cmd', op + ' ' + str(value)),
         )
+
+		# avoid multiple request
+        if op == self.last_op and str(params) == self.last_params :
+            _LOGGER.debug('retry for op :' +op+' avoided')
+            return
 
         # request the stove
         if self.request_stove(op, params) == False:
@@ -329,17 +329,17 @@ class Palazzetti(object):
         if type(value) != str and type(value) != int:
             return
 
-       	# avoid multiple request
-        if op == self.last_op and str(params) == self.last_params :
-            _LOGGER.debug('retry for op :' +op+' avoided')
-            return
-            
         op = 'SET RFAN'
 
         # params for GET
         params = (
             ('cmd', op + ' ' + str(value)),
         )
+
+       	# avoid multiple request
+        if op == self.last_op and str(params) == self.last_params :
+            _LOGGER.debug('retry for op :' +op+' avoided')
+            return           
 
         # request the stove
         if self.request_stove(op, params) == False:
