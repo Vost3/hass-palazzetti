@@ -201,3 +201,9 @@ logger:
   logs:    
     custom_components.palazzetti: debug
 ```
+
+### Tested on release
+```
+  0.100.3
+  0.108.0
+```
