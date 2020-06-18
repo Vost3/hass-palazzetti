@@ -36,7 +36,7 @@ async def async_setup(hass, config):
 
     # loop for update state of stove
     def update_datas(event_time):
-        asyncio.run_coroutine_threadsafe( hass.data[DOMAIN].refresh_main_datas(), hass.loop)
+        return asyncio.run_coroutine_threadsafe( hass.data[DOMAIN].async_refresh_main_datas(), hass.loop)
 
     async_track_time_interval(hass, update_datas, INTERVAL)
 
@@ -110,22 +110,16 @@ class Palazzetti(object):
         #hass.states.async_set('palazzetti.ip', self.ip)
 
     # get main data needed
-    async def refresh_main_datas(self):
-        await self.get_alls()
-        await self.get_cntr()
-
-    async def get_alls(self):
+    async def async_refresh_main_datas(self):
         """Get All data or almost ;)"""
         self.op = 'GET ALLS'
-        await self.get_request()
+        await self.async_get_request()
 
-    async def get_cntr(self):
         """Get counters"""
         self.op = 'GET CNTR'
-        await self.get_request()
+        await self.async_get_request()
 
-    async def get_request(self):
-
+    async def async_get_request(self):
         # params for GET
         params = (
             ('cmd', self.op),
@@ -156,7 +150,7 @@ class Palazzetti(object):
             self.response_json = response_json['DATA']
 
         self.hass.states.async_set('palazzetti.stove', 'online', self.response_json)
-        await self.change_states()
+        self.change_states()
 
     # send request to stove
     async def async_request_stove(self, params):
@@ -248,7 +242,7 @@ class Palazzetti(object):
 
         return response
 
-    async def change_states(self):
+    def change_states(self):
         """Change states following result of request"""
         if self.op == 'GET ALLS':
             self.hass.states.async_set('palazzetti.STATUS', self.code_status.get(self.response_json['STATUS'], self.response_json['STATUS']))
