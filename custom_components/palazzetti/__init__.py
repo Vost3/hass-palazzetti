@@ -6,7 +6,7 @@ configuration.yaml file.
 palazzetti:
   ip: your_ip (without quote)
 """
-import logging, asyncio, requests, json, voluptuous
+import logging, asyncio, json, requests, voluptuous, aiohttp
 from datetime import timedelta
 
 from homeassistant.helpers.event import async_track_time_interval
@@ -18,7 +18,8 @@ _LOGGER = logging.getLogger(__name__)
 
 # The domain of your component. Should be equal to the name of your component.
 DOMAIN = "palazzetti"
-INTERVAL = timedelta(seconds=60)
+INTERVAL = timedelta(seconds=30)
+INTERVAL_CNTR = timedelta(seconds=300) # Interval for check counters
 
 
 CONFIG_SCHEMA = voluptuous.Schema({
@@ -31,19 +32,26 @@ CONFIG_SCHEMA = voluptuous.Schema({
 async def async_setup(hass, config):
     _LOGGER.debug("Init of palazzetti component")
 
-    hass.data[DOMAIN] = Palazzetti(hass, config)
+    api = Palazzetti(hass, config)
+    await api.async_get_alls()
+    await api.async_get_cntr()
 
 
-    # loop for update state of stove
-    def update_datas(event_time):
-        return asyncio.run_coroutine_threadsafe( hass.data[DOMAIN].async_refresh_main_datas(), hass.loop)
+    # loop for get state of stove
+    def update_state_datas(event_time):
+        return asyncio.run_coroutine_threadsafe( api.async_get_alls(), hass.loop)
 
-    async_track_time_interval(hass, update_datas, INTERVAL)
+    # loop for get counter of stove
+    def update_cntr_datas(event_time):
+        return asyncio.run_coroutine_threadsafe( api.async_get_cntr(), hass.loop)
+
+    async_track_time_interval(hass, update_state_datas, INTERVAL)
+    async_track_time_interval(hass, update_cntr_datas, INTERVAL_CNTR)
 
     # services
     def set_parameters(call):
         """Handle the service call 'set'"""
-        hass.data[DOMAIN].set_parameters(call.data)
+        api.set_parameters(call.data)
 
     hass.services.async_register(DOMAIN, 'set_parms', set_parameters)
 
@@ -65,8 +73,9 @@ class Palazzetti(object):
     """docstring for Palazzetti"""
     def __init__(self, hass, config):
 
-        self.hass   = hass
-        self.ip     = config[DOMAIN].get('ip', None)
+        self.hass       = hass
+        self.ip         = config[DOMAIN].get('ip', None)
+        self.queryStr   = 'http://'+self.ip+'/cgi-bin/sendmsg.lua'
 
         _LOGGER.debug('Init of class palazzetti')
 
@@ -109,31 +118,56 @@ class Palazzetti(object):
         # States are in the format DOMAIN.OBJECT_ID.
         #hass.states.async_set('palazzetti.ip', self.ip)
 
-    # get main data needed
-    async def async_refresh_main_datas(self):
+    # make request GET ALLS
+    async def async_get_alls(self):
         """Get All data or almost ;)"""
         self.op = 'GET ALLS'
         await self.async_get_request()
 
+    # make request GET CNTR
+    async def async_get_cntr(self):
         """Get counters"""
         self.op = 'GET CNTR'
         await self.async_get_request()
 
+    # send a get request for get datas
     async def async_get_request(self):
+        """ request the stove """
         # params for GET
         params = (
             ('cmd', self.op),
         )
 
-        # request the stove
-        response = await self.async_request_stove(params)
+        # check if op is defined or stop here
+        if self.op is None:
+            return False
 
+        # let's go baby
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(self.queryStr, params=params) as response:                    
+                    if response.status != 200 : 
+                        _LOGGER.error("Error during api request : http status returned is {}".format(response.status))
+                        self.hass.states.async_set('palazzetti.stove', 'offline')
+                        response = False
+                    else:
+                        # save response in json object
+                        response_json = json.loads(await response.text())
+
+        except aiohttp.ClientError as client_error:
+            _LOGGER.error("Error during api request: {emsg}".format(emsg=client_error))
+            self.hass.states.async_set('palazzetti.stove', 'offline')
+            response = False
+        except json.decoder.JSONDecodeError as err:
+            _LOGGER.error("Error during json parsing: response unexpected from Cbox")
+            self.hass.states.async_set('palazzetti.stove', 'offline')
+            response = False
+        
         if response == False:
             _LOGGER.debug('get_request() response false for op ' + self.op)
             return False
 
-        # save response in json object
-        response_json = json.loads(response.text)
+        
 
         #If no response return
         if response_json['SUCCESS'] != True :
@@ -153,32 +187,6 @@ class Palazzetti(object):
         self.change_states()
 
     # send request to stove
-    async def async_request_stove(self, params):
-        _LOGGER.debug('request stove ' + self.op)
-
-        if self.op is None:
-            return False
-
-        queryStr = 'http://'+self.ip+'/cgi-bin/sendmsg.lua'
-
-        # let's go baby
-        try:
-            response = requests.get(queryStr, params=params, timeout=30)
-        except requests.exceptions.ReadTimeout:
-            # timeout ( can happend when wifi is used )
-            _LOGGER.error('Timeout reach for request : ' + queryStr)
-            _LOGGER.info('Please check if you can ping : ' + self.ip)
-            self.hass.states.async_set('palazzetti.stove', 'offline')
-            return False
-        except requests.exceptions.ConnectTimeout:
-            # equivalent of ping
-            _LOGGER.error('Please check parm ip : ' + self.ip)
-            self.hass.states.async_set('palazzetti.stove', 'offline')
-            return False
-
-        return response
-
-    # send request to stove
     def request_stove(self, op, params):
         _LOGGER.debug('request stove ' + op)
 
@@ -189,18 +197,16 @@ class Palazzetti(object):
         self.last_op = op
         self.last_params = str(params)
 
-        queryStr = 'http://'+self.ip+'/cgi-bin/sendmsg.lua'        
-
         retry = 0
         success = False
         # error returned by Cbox
         while not success :
             # let's go baby
             try:
-                response = requests.get(queryStr, params=params, timeout=30)
+                response = requests.get(self.queryStr, params=params, timeout=30)
             except requests.exceptions.ReadTimeout:
                 # timeout ( can happend when wifi is used )
-                _LOGGER.error('Timeout reach for request : ' + queryStr)
+                _LOGGER.error('Timeout reach for request : ' + self.queryStr)
                 _LOGGER.info('Please check if you can ping : ' + self.ip)
                 self.hass.states.set('palazzetti.stove', 'offline')
                 return False
