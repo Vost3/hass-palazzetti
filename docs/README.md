@@ -191,7 +191,6 @@ I know some difference for other stove that have the option ductable
 - [ ] fix for ductable stove
 - [ ] named vars for PWR / RFAN / SETP
 - [ ] link with `climate` entity
-- [ ] may be an updater for check new release of component
 
 #### DEV - enable log
 Enable home-assistant logger in your `configuration.yaml`
@@ -206,4 +205,5 @@ logger:
 ```
   0.100.3
   0.108.0
+  2020.12.1
 ```
