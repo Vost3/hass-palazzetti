@@ -120,7 +120,7 @@ You can set some parameters through the service `palazzetti.set_parms`
       RFAN: "{{ states('input_number.stove_fan_lvl') | int }}"
 
 - id: '3'
-  alias: Stove Fan State change
+  alias: Stove Fire State change
   trigger:
     platform: state
     entity_id: input_number.stove_fire_lvl
@@ -128,6 +128,28 @@ You can set some parameters through the service `palazzetti.set_parms`
     service: palazzetti.set_parms
     data_template:
       PWR: "{{ states('input_number.stove_fire_lvl') | int }}"
+
+- id: '4'
+  alias: Stove Fan State check
+  trigger:
+    platform: state
+    entity_id: palazzetti.f2l
+  action:
+    service: input_number.set_value
+    data:
+      entity_id: input_number.stove_fan_lvl
+      value: "{{ states('palazzetti.f2l') }}"
+
+- id: '5'
+  alias: Stove Fire State check
+  trigger:
+    platform: state
+    entity_id: palazzetti.pwr
+  action:
+    service: input_number.set_value
+    data:
+      entity_id: input_number.stove_fire_lvl
+      value: "{{ states('palazzetti.pwr') }}"
 ```
 
 ### Sensor
