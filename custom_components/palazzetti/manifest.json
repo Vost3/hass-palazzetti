@@ -6,5 +6,6 @@
   "codeowners": [
       "@BoubourSe"
   ],
+  "version":"0.1.0",
   "requirements": []  
 }
