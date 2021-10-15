@@ -1,2 +1,21 @@
 set_parms:
   name: Set parameters
+  description: The parameters for controlling the stove.
+  fields:
+    SETP:
+      name: Set point
+      description: Set temperature target (integer).
+    PWR:
+      name: Power
+      description: The maximum power allowed while trying to achieve the set point (integer from 1 to 5).
+    RFAN:
+      name: Room fan
+      description: The level of the integrated room fan (if exists on your stove) (integer from 1 to 5 or string off/auto/high).
+    STATUS:
+      name: Stove status
+      description: Start or stop the stove (string on/off).
+      selector:
+        select:
+          options:
+            - "on"
+            - "off"
