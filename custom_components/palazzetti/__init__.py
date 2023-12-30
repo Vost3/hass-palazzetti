@@ -350,12 +350,19 @@ class Palazzetti(object):
 
     def set_status(self, value):
         """start or stop stove"""
-        if value == None or type(value) != str :
+        # bug fix : 2023.12.30 - type(<class 'homeassistant.util.yaml.objects.NodeStrClass'>) when switch is used
+        if value is None:
             return
 
         # only ON of OFF value allowed
-        if value != 'on' and value != 'off':
+        if value not in ('on', 'off', True, False):
             return
+
+        if isinstance(value, bool):
+            if value is True :
+                value = 'on'
+            else :
+                value = 'off'
 
         op = 'CMD'
 
