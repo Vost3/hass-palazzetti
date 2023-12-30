@@ -212,6 +212,13 @@ Here all parameters that can be changed
 This component is tested only on Stove `NINA 6kW` not ductable. Don't hesitate to signal any trouble
 I know some difference for other stove that have the option ductable
 
+### List of stove tested 
+- Ecofire Julie 12 Pro 3 air ( @RonandoDeLaVega )
+- Ecofire Ines 9kw air ( @jere19 )
+
+you can contribute to this list ( see and update this post - https://github.com/Vost3/hass-palazzetti/issues/13 )
+
+
 ### Coming soon
 - [ ] fix for ductable stove
 - [ ] named vars for PWR / RFAN / SETP
@@ -232,4 +239,5 @@ logger:
   0.108.0
   2020.12.1
   2023.3.6
+  2023.12.4
 ```
