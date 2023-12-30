@@ -1,12 +1,12 @@
 {
   "domain": "palazzetti",
   "name": "Palazzetti Stove",
-  "documentation": "https://github.com/BoubourSe/hass-palazzetti",
+  "documentation": "https://github.com/Vost3/hass-palazzetti",
   "dependencies": [],
   "codeowners": [
-      "@BoubourSe"
+      "@Vost3"
   ],
-  "version": "0.1.0",
+  "version": "0.1.1",
   "iot_class": "local_polling",
   "requirements": []  
 }
