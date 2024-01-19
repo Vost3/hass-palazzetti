@@ -4,9 +4,9 @@
   "documentation": "https://github.com/Vost3/hass-palazzetti",
   "dependencies": [],
   "codeowners": [
-      "@Vost3"
+      "@Vost3", "@meyxiam"
   ],
-  "version": "0.1.1",
+  "version": "0.1.2",
   "iot_class": "local_polling",
   "requirements": []  
 }
