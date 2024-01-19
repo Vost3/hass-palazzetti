@@ -253,6 +253,8 @@ class Palazzetti(object):
         if self.op == 'GET ALLS':
             self.hass.states.async_set('palazzetti.STATUS', self.code_status.get(self.response_json['STATUS'], self.response_json['STATUS']))
             self.hass.states.async_set('palazzetti.F2L', int(self.response_json['F2L']))
+            self.hass.states.async_set('palazzetti.F3L', int(self.response_json['F3L']))
+            self.hass.states.async_set('palazzetti.F4L', int(self.response_json['F4L']))
             self.hass.states.async_set('palazzetti.PWR', self.response_json['PWR'])
             self.hass.states.async_set('palazzetti.SETP', self.response_json['SETP'])
 
@@ -267,7 +269,9 @@ class Palazzetti(object):
         """set parameters following service call"""
         self.set_sept(datas.get('SETP', None))       # temperature
         self.set_powr(datas.get('PWR', None))        # fire power
-        self.set_rfan(datas.get('RFAN', None))       # Fan
+        self.set_rfan(datas.get('RFAN', None))       # Fan center
+        self.set_fanleft(datas.get('FN3L', None))    # Fan left
+        self.set_fanright(datas.get('FN4L', None))   # Fan right
         self.set_status(datas.get('STATUS', None))   # status
 
     def set_sept(self, value):
@@ -348,6 +352,64 @@ class Palazzetti(object):
         # change state
         self.hass.states.async_set('palazzetti.F2L', self.response_json['F2L'])
 
+    def set_fanleft(self, value):
+        """Set fanleft level"""
+
+        if value == None:
+            return
+
+        # must be str or int
+        if type(value) != str and type(value) != int:
+            return
+
+        op = 'SET FN3L'
+
+        # params for GET
+        params = (
+            ('cmd', op + ' ' + str(value)),
+        )
+
+       	# avoid multiple request
+        if op == self.last_op and str(params) == self.last_params :
+            _LOGGER.debug('retry for op :' +op+' avoided')
+            return           
+
+        # request the stove
+        if self.request_stove(op, params) == False:
+            return
+
+        # change state
+        self.hass.states.async_set('palazzetti.F3L', self.response_json['F3L'])
+        
+    def set_fanright(self, value):
+        """Set fanright level"""
+
+        if value == None:
+            return
+
+        # must be str or int
+        if type(value) != str and type(value) != int:
+            return
+
+        op = 'SET FN4L'
+
+        # params for GET
+        params = (
+            ('cmd', op + ' ' + str(value)),
+        )
+
+       	# avoid multiple request
+        if op == self.last_op and str(params) == self.last_params :
+            _LOGGER.debug('retry for op :' +op+' avoided')
+            return           
+
+        # request the stove
+        if self.request_stove(op, params) == False:
+            return
+
+        # change state
+        self.hass.states.async_set('palazzetti.F4L', self.response_json['F4L'])
+        
     def set_status(self, value):
         """start or stop stove"""
         # bug fix : 2023.12.30 - type(<class 'homeassistant.util.yaml.objects.NodeStrClass'>) when switch is used
