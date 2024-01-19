@@ -35,6 +35,7 @@ Don't miss to use the automation sample more below for set the link between the 
 
 ### Configuration `configuration.yaml`
 ```yaml
+# Mes configs supplémentaires
 ############ palazzetti ############
 palazzetti:
   ip: !secret ip_palazzetti_connectionbox
@@ -49,6 +50,22 @@ input_number:
     name: "Ventilation"
     min: 0
     max: 7
+    step: 1
+    icon: mdi:fan
+
+  #Fan1 level
+  stove_fan1_lvl:
+    name: "Ventilation_Gauche"
+    min: 0
+    max: 5
+    step: 1
+    icon: mdi:fan
+
+  #Fan2 level
+  stove_fan2_lvl:
+    name: "Ventilation_Droite"
+    min: 0
+    max: 5
     step: 1
     icon: mdi:fan
 
@@ -83,6 +100,7 @@ switch:
           {% endif %}
 
 ############ fin palazzetti ############
+
 # les derniers includes
 automation: !include automations.yaml
 script: !include scripts.yaml
@@ -172,7 +190,7 @@ logger:
 - platform: template
   sensors:
     stove_temperature_fumee_combustion:
-      friendly_name: Temperature fumée conbustion
+      friendly_name: Temperature fumée combustion
       value_template: "{{ state_attr('palazzetti.stove', 'T3') | float }}"
       icon_template: mdi:thermometer
       unit_of_measurement: °C
@@ -200,6 +218,22 @@ logger:
       value_template: "{{ state_attr('palazzetti.stove', 'PQT') | int }}"
       icon_template: mdi:counter
       unit_of_measurement: Kg
+
+- platform: template
+  sensors:
+    stove_pression_reelle:
+      friendly_name: Pression réelle
+      value_template: "{{ state_attr('palazzetti.stove', 'DP_PRESS') | int }}"
+      icon_template: mdi:counter
+      unit_of_measurement: Pa
+
+- platform: template
+  sensors:
+    stove_pression_ideale:
+      friendly_name: Pression idéale
+      value_template: "{{ state_attr('palazzetti.stove', 'DP_TARGET') | int }}"
+      icon_template: mdi:counter
+      unit_of_measurement: Pa
 
 ```
 
@@ -234,6 +268,8 @@ logger:
         STATUS: ON
         PWR: 1
         RFAN: 1
+        FN3L: 1
+        FN4L: 0
 
 "palazzetti_set_status_off": # stop
   alias: Stop stove
