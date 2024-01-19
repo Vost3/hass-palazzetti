@@ -31,7 +31,7 @@ Get a switch for start / stop your stove and slide for change the fire level or 
 Follow the sample below
 Don't miss to use the automation sample more below for set the link between the switch and the stove
 
-<img src="assets/switch_and_level.png" alt="Palazzetti Switch sample"></a>
+![image](https://github.com/meyxiam/hass-palazzetti/assets/155761793/e693f0b6-dea7-4b3c-bd74-7e009ccd914a)
 
 ### Configuration `configuration.yaml`
 ```yaml
