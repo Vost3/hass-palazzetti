@@ -9,8 +9,14 @@ set_parms:
       name: Power
       description: The maximum power allowed while trying to achieve the set point (integer from 1 to 5).
     RFAN:
-      name: Room fan
-      description: The level of the integrated room fan (if exists on your stove) (integer from 1 to 5 or string off/auto/high).
+      name: Room fan central
+      description: The level of the integrated room fan (if exists on your stove) (integer from 0 to 5 or string off/auto/high).
+    FN3L:
+      name: Room fan left
+      description: The level of the left fan (integer from 0 to 5 or string off)
+    FN4L:
+      name: Room fan right
+      description: The level of the right fan (integer from 0 to 5 or string off)
     STATUS:
       name: Stove status
       description: Start or stop the stove (string on/off).
