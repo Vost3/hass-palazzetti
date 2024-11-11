@@ -5,6 +5,12 @@ To use the palazzetti component you will need to add the following to your
 configuration.yaml file.
 palazzetti:
   ip: your_ip (without quote)
+
+dev tips:
+    http://ip/cgi-bin/sendmsg.lua?cmd=GET ALLS # all datas
+    http://ip/cgi-bin/sendmsg.lua?cmd=GET SETP # get temperation defined
+    http://ip/cgi-bin/sendmsg.lua?cmd=SET SETP 28 # set temperation to 28° celsius
+
 """
 import logging, asyncio, json, requests, voluptuous, aiohttp
 from datetime import timedelta
@@ -227,11 +233,17 @@ class Palazzetti(object):
             if not success:
                 self.hass.states.async_set('palazzetti.stove', 'com error', self.response_json)
                 _LOGGER.error('Error returned by CBox - retry in 2 seconds (' +op+')')
+                _LOGGER.error(f'Ip : {str(self.ip)}')    
+                _LOGGER.error(f'Query : {str(self.queryStr)}')    
+                _LOGGER.error(f'Parms : {str(params)}')    
+                _LOGGER.error(f'Reponse : {str(response.text)}')
+
+
                 time.sleep(2)
                 retry = retry + 1
 
                 if retry == 3 :
-                     _LOGGER.error('Error returned by CBox - stop retry after 3 attempt (' +op+')')
+                     _LOGGER.error('stop retry after 3 attempt (' +op+')')
                      break
             
             
